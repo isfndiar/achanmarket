@@ -226,7 +226,7 @@ export default function Home() {
         <Badge />
         <HeaderText className="absolute font-press text-[3vw] xl:top-3 top-4 sm:translate-x-[-3rem]   xl:scale-100 lg:scale-90 scale-50  ravo " />
         <BackGround className="animation-behind animation" />
-        {/* <Character /> */}
+        <Character /> 
         <Circles />
 
         <div
