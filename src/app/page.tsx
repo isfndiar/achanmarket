@@ -16,6 +16,7 @@ import Circles from "@/components/Circles";
 import useMedia from "@/hook/useMedia";
 import Backed from "@/components/secondpage/backed";
 import dynamic from "next/dynamic";
+import useRefProduct from "@/hook/useRefProduct";
 
 const Character = dynamic(() => import("@/components/Character"), {
   ssr: false,
@@ -28,8 +29,10 @@ export default function Home() {
   const initialText = "TEXT BERJALAN"; // Simpan teks awal
   const textIsHover = "YOU RIGHT"; // Simpan teks awal
   const [textScroll, setTextScroll] = useState(initialText);
+  const [isMenuClicked, setIsMenuClicked] = useState<boolean>(false);
   const [intervalId, setIntervalId] = useState<number | null>(null);
-  const [hydration, setHydration] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const { contextSafe } = useGSAP({ scope: menuRef });
   function requestText() {
     let alphabet = Array.from({ length: 26 }, (_, i) =>
       String.fromCharCode(97 + i)
@@ -76,6 +79,22 @@ export default function Home() {
       }
     }, 100);
   };
+
+  const handleClickMenu = contextSafe(() => {
+    if (!isMenuClicked) {
+      setIsMenuClicked(true);
+      gsap.to(".navigation", {
+        x: 0,
+        duration: 0.5,
+      });
+    } else {
+      setIsMenuClicked(false);
+      gsap.to(".navigation", {
+        x: 200,
+        duration: 0.5,
+      });
+    }
+  });
 
   useGSAP(() => {
     gsap.from(".ravo", {
@@ -155,6 +174,19 @@ export default function Home() {
     });
   });
 
+  // is menu click
+  useGSAP(() => {
+    const tl = gsap.timeline();
+    tl.to(menuRef.current, {
+      scale: 0.8,
+      duration: 0.5,
+    });
+    tl.to(menuRef.current, {
+      scale: 1,
+      duration: 0.5,
+    });
+  }, [isMenuClicked]);
+
   const handleZoom = () => {
     let tl = gsap.timeline();
     let menus = gsap.utils.toArray(".menu");
@@ -217,21 +249,24 @@ export default function Home() {
   };
 
   return (
-    <div id="main" className="w-full h-[1000vh] font-inter">
+    <div id="main" className="w-full h-[1000vh] font-inter ">
+      <Menu isMenuClicked={isMenuClicked} />
       <main
         id="section-1"
-        className="relative bg-white w-full h-screen flex flex-col items-center justify-center m-auto    max-w-screen-2xl   overflow-hidden z-[99] "
+        className=" relative bg-white w-full h-screen flex flex-col items-center justify-center m-auto    max-w-screen-2xl   overflow-hidden z-[90] "
       >
         <Line className="xl:right-7 xl:bottom-7 right-3 bottom-0 line-animation sm:block hidden " />
         <Badge />
         <HeaderText className="absolute font-press text-[3vw] xl:top-3 top-4 sm:translate-x-[-3rem]   xl:scale-100 lg:scale-90 scale-50  ravo " />
         <BackGround className="animation-behind animation" />
-        <Character /> 
+        <Character />
         <Circles />
 
         <div
+          ref={menuRef}
           onMouseEnter={handleZoom}
           onMouseLeave={handleZoomOut}
+          onClick={() => setIsMenuClicked((x) => !x)}
           className="logo sm:flex hidden absolute left-0 px-2 origin-center flex-col gap-2  text-center cursor-pointer select-none "
         >
           {Array.from({ length: 5 }, (_, i) => {
@@ -267,7 +302,7 @@ export default function Home() {
       </main>
       <Section
         id={"section-2"}
-        className="w-full bg-black relative z-[99] text-white   overflow-hidden"
+        className="w-full bg-black relative z-[90] text-white   overflow-hidden"
       >
         <Backed />
         <div className="w-full p-[11vw]">
@@ -385,7 +420,7 @@ export default function Home() {
         </div>
       </Section>
 
-      <Section id="features" className="w-full h-screen   relative z-[99]">
+      <Section id="features" className="w-full h-screen   relative z-[90]">
         <header
           ref={headerRef}
           className="w-full   select-none cursor-pointer px-5 pt-10 pb-32  "
@@ -417,6 +452,49 @@ const Section = (props: {
   return (
     <div id={id} className={className}>
       {children}
+    </div>
+  );
+};
+
+const Menu = ({ isMenuClicked }: { isMenuClicked: boolean }) => {
+  useGSAP(() => {
+    gsap.to(".navigation", {
+      x: isMenuClicked ? 0 : 500,
+      ease: "power2.inOut",
+      duration: 0.5,
+    });
+
+    gsap.to(".green-line", {
+      ease: "power2.inOut",
+      duration: 0.5,
+      x: isMenuClicked ? -410 : 500,
+    });
+  }, [isMenuClicked]);
+  return (
+    <div>
+      <div
+        style={{
+          // Sisi kiri miring: kiri atas turun sedikit, kiri bawah naik sedikit
+          clipPath: "polygon(50% 0, 100% 0%, 100% 100%, 0 100%)",
+          boxShadow: "0 0 32px 0 rgba(0,0,0,0.3)",
+        }}
+        className={`green-line bg-lime-400 w-[3rem] h-full fixed top-0 bottom-0 right-0 z-[99]`}
+      ></div>
+      <div
+        id="navigation"
+        className="navigation fixed top-0 bottom-0 right-0 translate-x-[500px] w-1/3 h-full z-[99] pointer-events-auto flex items-center justify-center"
+        style={{
+          background: "black",
+          // Sisi kiri miring: kiri atas turun sedikit, kiri bawah naik sedikit
+          clipPath: "polygon(5% 0, 100% 0%, 100% 100%, 0 100%)",
+          boxShadow: "0 0 32px 0 rgba(0,0,0,0.3)",
+        }}
+      >
+        <div className="w-full h-full flex items-center justify-center text-white">
+          {/* Konten menu di sini */}
+          <h2>Menu Content</h2>
+        </div>
+      </div>
     </div>
   );
 };
