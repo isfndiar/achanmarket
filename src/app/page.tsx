@@ -13,10 +13,10 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 import MainInventory from "@/components/Inventory/MainInventory";
 import Badge from "@/components/Badge";
 import Circles from "@/components/Circles";
-import useMedia from "@/hook/useMedia";
 import Backed from "@/components/secondpage/backed";
 import dynamic from "next/dynamic";
-import useRefProduct from "@/hook/useRefProduct";
+import Link from "next/link";
+import "./landingPage.css";
 
 const Character = dynamic(() => import("@/components/Character"), {
   ssr: false,
@@ -179,11 +179,11 @@ export default function Home() {
     const tl = gsap.timeline();
     tl.to(menuRef.current, {
       scale: 0.8,
-      duration: 0.5,
+      duration: 0.3,
     });
     tl.to(menuRef.current, {
       scale: 1,
-      duration: 0.5,
+      duration: 0.3,
     });
   }, [isMenuClicked]);
 
@@ -248,6 +248,24 @@ export default function Home() {
     );
   };
 
+  useEffect(() => {
+    if (typeof window !== "undefined" && isMenuClicked) {
+      const handleCloseInventory = (e: MouseEvent) => {
+        const inventoryRef = document.getElementById("navigation");
+        if (inventoryRef && !inventoryRef.contains(e.target as Node)) {
+          setIsMenuClicked(false);
+        }
+      };
+      // Tambahkan delay agar event pembuka tidak langsung menutup
+      const timeout = setTimeout(() => {
+        window.addEventListener("click", handleCloseInventory);
+      }, 0);
+      return () => {
+        clearTimeout(timeout);
+        window.removeEventListener("click", handleCloseInventory);
+      };
+    }
+  }, [isMenuClicked]);
   return (
     <div id="main" className="w-full h-[1000vh] font-inter ">
       <Menu isMenuClicked={isMenuClicked} />
@@ -255,10 +273,10 @@ export default function Home() {
         id="section-1"
         className=" relative bg-white w-full h-screen flex flex-col items-center justify-center m-auto    max-w-screen-2xl   overflow-hidden z-[90] "
       >
-        <Line className="xl:right-7 xl:bottom-7 right-3 bottom-0 line-animation sm:block hidden " />
+        <Line className="absolute xl:right-7 xl:bottom-7 right-3 bottom-0 line-animation sm:block hidden " />
         <Badge />
         <HeaderText className="absolute font-press text-[3vw] xl:top-3 top-4 sm:translate-x-[-3rem]   xl:scale-100 lg:scale-90 scale-50  ravo " />
-        <BackGround className="animation-behind animation" />
+        <BackGround className="animation-behind animation absolute" />
         <Character />
         <Circles />
 
@@ -286,7 +304,7 @@ export default function Home() {
           style={{ width: "auto", height: "auto" }}
           width={100}
           height={100}
-          className="strip left-20 bottom-10"
+          className="absolute strip left-20 bottom-10"
         />
 
         <Image
@@ -294,7 +312,7 @@ export default function Home() {
           src={`/bottom-character.png`}
           width={450}
           height={450}
-          className="bottom-animation origin-bottom-left sm:bottom-0 bottom-10 -translate-x-5 "
+          className="absolute bottom-animation origin-bottom-left sm:bottom-0 bottom-10 -translate-x-5 "
         />
         <Vector />
         <DiscoverButton />
@@ -336,7 +354,7 @@ export default function Home() {
                     width={240}
                     height={240}
                     alt="shoes"
-                    className="  "
+                    className=" absolute"
                   />
                 </div>
               </div>
@@ -354,7 +372,7 @@ export default function Home() {
                     width={240}
                     height={240}
                     alt="bottle nft"
-                    className="  "
+                    className=" absolute "
                   />
                 </div>
               </div>
@@ -410,7 +428,7 @@ export default function Home() {
                     width={240}
                     height={240}
                     alt="character"
-                    className="  "
+                    className=" absolute "
                   />
                 </div>
               </div>
@@ -435,7 +453,7 @@ export default function Home() {
             src={"/overview/0.png"}
             width={200}
             height={200}
-            className="right-[20vw]"
+            className="right-[20vw] absolute"
           />
         </div>
       </Section>
@@ -478,11 +496,11 @@ const Menu = ({ isMenuClicked }: { isMenuClicked: boolean }) => {
           clipPath: "polygon(50% 0, 100% 0%, 100% 100%, 0 100%)",
           boxShadow: "0 0 32px 0 rgba(0,0,0,0.3)",
         }}
-        className={`green-line bg-lime-400 w-[3rem] h-full fixed top-0 bottom-0 right-0 z-[99]`}
+        className={`green-line bg-lime-400 w-[3rem] translate-x-[500px] h-full fixed top-0 bottom-0 right-0 z-[99]`}
       ></div>
       <div
         id="navigation"
-        className="navigation fixed top-0 bottom-0 right-0 translate-x-[500px] w-1/3 h-full z-[99] pointer-events-auto flex items-center justify-center"
+        className="navigation fixed top-0 bottom-0 right-0 translate-x-[500px] w-1/3 h-full z-[99] pointer-events-auto flex  justify-center"
         style={{
           background: "black",
           // Sisi kiri miring: kiri atas turun sedikit, kiri bawah naik sedikit
@@ -490,9 +508,24 @@ const Menu = ({ isMenuClicked }: { isMenuClicked: boolean }) => {
           boxShadow: "0 0 32px 0 rgba(0,0,0,0.3)",
         }}
       >
-        <div className="w-full h-full flex items-center justify-center text-white">
-          {/* Konten menu di sini */}
-          <h2>Menu Content</h2>
+        <div className="flex w-full justify-center items-center flex-col gap-3 mt-32 h-fit">
+          {Array(4)
+            .fill(0)
+            .map((_, index) => {
+              let menuText = ["Launch App", "Docs", "Contact", "Roadmap"];
+              let url = ["/dashboard", "/docs", "/contact", "/roadmap"];
+              return (
+                <Link
+                  href={`${url[index].toLowerCase()}`}
+                  className={
+                    "text-[1.8rem] font-bold text-gray-500 hover:text-gray-400 cursor-pointer"
+                  }
+                  key={index}
+                >
+                  {menuText[index]}
+                </Link>
+              );
+            })}
         </div>
       </div>
     </div>

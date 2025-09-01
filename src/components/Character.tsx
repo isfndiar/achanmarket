@@ -72,7 +72,7 @@ const Character = () => {
       src={images[imgIndex]}
       width={400}
       height={400}
-      className={`${position[imgIndex]}  animation-character ${sizeImage[imgIndex]} select-none pointer-events-none`}
+      className={`${position[imgIndex]} absolute  animation-character ${sizeImage[imgIndex]} select-none pointer-events-none`}
     />
   );
 };

@@ -77,7 +77,7 @@ const Circles = () => {
           onMouseMove={handleMove}
           // onMouseEnter={handleEnter}
           onMouseLeave={handleLeave}
-          className={` ${i} circle z-[99]`}
+          className={`absolute ${i} circle z-[99]`}
         />
       ))}
     </div>
